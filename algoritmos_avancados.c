@@ -1,11 +1,10 @@
-#include <stdio.h>
+
 
 // Desafio Detective Quest
 // Tema 4 - Árvores e Tabela Hash
 // Este código inicial serve como base para o desenvolvimento das estruturas de navegação, pistas e suspeitos.
 // Use as instruções de cada região para desenvolver o sistema completo com árvore binária, árvore de busca e tabela hash.
 
-int main() {
 
     // 🌱 Nível Novato: Mapa da Mansão com Árvore Binária
     //
@@ -40,8 +39,100 @@ int main() {
     // - Exiba ao final o “suspeito mais provável” baseado nas pistas coletadas.
     // - Para hashing simples, pode usar soma dos valores ASCII do nome ou primeira letra.
     // - Em caso de colisão, use lista encadeada para tratar.
-    // - Modularize com funções como inicializarHash(), buscarSuspeito(), listarAssociacoes().
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-    return 0;
+// ===== Estrutura do nó da árvore =====
+typedef struct Sala {
+    char nome[50];
+    struct Sala *esquerda;
+    struct Sala *direita;
+} Sala;
+
+// ===== Cria uma nova sala =====
+Sala* criarSala(const char *nome) {
+    Sala *nova = (Sala*) malloc(sizeof(Sala));
+    if (nova == NULL) {
+        printf("Erro ao alocar memória.\n");
+        exit(1);
+    }
+    strcpy(nova->nome, nome);
+    nova->esquerda = NULL;
+    nova->direita = NULL;
+    return nova;
 }
 
+// ===== Cria o mapa da mansão =====
+Sala* montarMansao() {
+    Sala *hall = criarSala("Hall de Entrada");
+    Sala *biblioteca = criarSala("Biblioteca Antiga");
+    Sala *salaJantar = criarSala("Sala de Jantar");
+    Sala *laboratorio = criarSala("Laboratório Secreto");
+    Sala *jardim = criarSala("Jardim dos Mistérios");
+    Sala *porao = criarSala("Porão Escuro");
+    Sala *torre = criarSala("Torre do Relógio");
+
+    // Conexões entre as salas (árvore binária)
+    hall->esquerda = biblioteca;
+    hall->direita = salaJantar;
+
+    biblioteca->esquerda = laboratorio;
+    biblioteca->direita = jardim;
+
+    salaJantar->esquerda = porao;
+    salaJantar->direita = torre;
+
+    // Raiz da árvore
+    return hall;
+}
+
+// ===== Função de exploração =====
+void explorarSalas(Sala *atual) {
+    char escolha;
+
+    while (atual != NULL) {
+        printf("\nVocê está em: **%s**\n", atual->nome);
+
+        // Verifica se é nó-folha (fim do caminho)
+        if (atual->esquerda == NULL && atual->direita == NULL) {
+            printf("Você chegou ao fim desse caminho da mansão.\n");
+            break;
+        }
+
+        printf("Deseja ir para (e) esquerda, (d) direita ou (s) sair? ");
+        scanf(" %c", &escolha);
+
+        if (escolha == 'e' || escolha == 'E') {
+            if (atual->esquerda != NULL)
+                atual = atual->esquerda;
+            else
+                printf("Não há passagem à esquerda!\n");
+        } 
+        else if (escolha == 'd' || escolha == 'D') {
+            if (atual->direita != NULL)
+                atual = atual->direita;
+            else
+                printf("Não há passagem à direita!\n");
+        } 
+        else if (escolha == 's' || escolha == 'S') {
+            printf("Você decidiu encerrar a exploração.\n");
+            break;
+        } 
+        else {
+            printf("Opção inválida.\n");
+        }
+    }
+}
+
+// ===== Função principal =====
+int main() {
+    printf("=== Detective Quest: Mapa da Mansão ===\n");
+    printf("Você é um detetive investigando uma antiga mansão misteriosa...\n");
+
+    Sala *inicio = montarMansao();
+    explorarSalas(inicio);
+
+    printf("\nFim da exploração. Até a próxima investigação!\n");
+    return 0;
+}
